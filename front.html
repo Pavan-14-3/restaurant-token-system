@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE COOL SELF BOOK RESTAURANT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #FF5F1F; /* Vivid Orange */
+            --bg: #FFFBF0;    /* Warm Cream */
+            --card: #FFFFFF;
+            --primary: #000000;
+            --secondary: #22C55E; /* Fresh Green */
+            --yellow: #FACC15;
+            --blue: #3B82F6;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            overflow-x: hidden;
+        }
+
+        /* NEUBRUTALISM BUTTONS */
+        button {
+            padding: 12px 24px;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            background: var(--yellow);
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px var(--primary);
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0px var(--primary);
+        }
+
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px var(--primary);
+        }
+
+        /* MODALS */
+        #loginModal, #paymentModal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 95, 31, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: var(--card);
+            border: 4px solid var(--primary);
+            padding: 40px;
+            width: 380px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 12px 12px 0px var(--primary);
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent);
+            background: #ffe4d6;
+            padding: 8px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+        }
+
+        input, select {
+            width: 90%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 3px solid var(--primary);
+            font-family: inherit;
+            font-weight: bold;
+            outline: none;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--accent);
+            border-bottom: 4px solid var(--primary);
+            padding: 25px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: white;
+            -webkit-text-stroke: 1.5px var(--primary);
+        }
+
+        .cart-btn {
+            position: absolute;
+            right: 20px; top: 20px;
+            background: var(--yellow);
+        }
+
+        /* MENU */
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .menu-card {
+            background: var(--card);
+            border: 3px solid var(--primary);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 8px 8px 0px var(--primary);
+            transition: 0.3s ease;
+        }
+
+        .menu-card:hover { transform: rotate(-2deg); }
+
+        .menu-card img {
+            width: 100%; height: 200px;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 3px solid var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .price-tag {
+            background: var(--secondary);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            font-weight: 900;
+            margin: 10px 0;
+        }
+
+        /* CART PANEL */
+        #cartPanel {
+            position: fixed;
+            right: -400px; top: 0;
+            width: 350px; height: 100%;
+            background: var(--yellow);
+            border-left: 4px solid var(--primary);
+            padding: 30px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        #cartPanel.active { right: 0; }
+
+        .token-badge {
+            font-size: 70px;
+            color: var(--accent);
+            font-weight: 900;
+            display: block;
+            margin: 20px 0;
+            background: white;
+            border: 4px solid var(--primary);
+            border-radius: 20px;
+            box-shadow: 8px 8px 0px var(--primary);
+        }
+
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; font-size: 10px; background: white; }
+        .tab-btn.active { background: var(--accent); color: white; }
+    </style>
+</head>
+
+<body>
+
+    <div id="loginModal">
+        <div class="modal-box">
+            <h2 style="font-weight:900;">WELCOME!</h2>
+            <p>Please login to start ordering</p>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="handleLogin()" style="width: 100%; margin-top: 20px;">Let's Eat!</button>
+            <div class="hint-text">💡 Hint: admin / 12345</div>
+        </div>
+    </div>
+
+    <div id="paymentModal" style="display:none;">
+        <div class="modal-box" id="paymentContent">
+            <h2 id="payAmount" style="font-weight:900;">₹0</h2>
+            <div class="tab-bar">
+                <button id="tabUpi" class="tab-btn active" onclick="switchTab('upi')">QR CODE</button>
+                <button id="tabNet" class="tab-btn" onclick="switchTab('net')">BANKING</button>
+                <button id="tabCounter" class="tab-btn" onclick="switchTab('counter')">CASH</button>
+            </div>
+
+            <div id="upiSection">
+                <div style="background: white; padding: 10px; border: 3px solid black; border-radius: 15px; display: inline-block; margin-bottom: 15px;">
+                    <img id="qrCode" src="" alt="QR" style="width:140px; height:140px;">
+                </div>
+                <button onclick="processOrder('UPI')" style="width:100%; background:var(--secondary)">Paid Successfully</button>
+            </div>
+
+            <div id="netSection" style="display:none;">
+                <select id="bankSelect">
+                    <option value="">Choose Bank</option>
+                    <option value="SBI">SBI</option>
+                    <option value="HDFC">HDFC</option>
+                </select>
+                <button onclick="processOrder('Net Banking')" style="width:100%;">Verify Pay</button>
+            </div>
+
+            <div id="counterSection" style="display:none;">
+                <p><b>Pay at the counter</b> to confirm your food!</p>
+                <button onclick="processOrder('Counter')" style="width:100%; background:var(--yellow)">Get Token</button>
+            </div>
+            <button onclick="closePayment()" style="background: #fff; margin-top: 15px; width: 100%;">Go Back</button>
+        </div>
+
+        <div class="modal-box" id="successContent" style="display:none;">
+            <h1 style="color: var(--secondary); font-weight:900;">YUMMY!</h1>
+            <p>Your Token Number is:</p>
+            <span class="token-badge" id="displayToken">1</span>
+            <p id="displayOrderId" style="font-weight:bold;"></p>
+            <button onclick="finishOrder()" style="width:100%; background:var(--accent); color:white;">Great!</button>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display:none;">
+        <header>
+            <h1>THE COOL RESTAURANT</h1>
+            <button class="cart-btn" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
+        </header>
+
+        <div style="text-align:center; padding: 30px;">
+            <input type="text" id="search" placeholder="Search for snacks..." onkeyup="searchFood()" 
+                   style="width:80%; max-width:500px; box-shadow: 6px 6px 0px var(--primary);">
+        </div>
+
+        <div class="menu-container" id="menu"></div>
+    </div>
+
+    <div id="cartPanel">
+        <span onclick="toggleCart()" style="cursor:pointer; float:right; font-weight:900; font-size: 30px;">&times;</span>
+        <h2 style="font-weight:900; text-transform:uppercase;">My Tray</h2>
+        <div id="cartItems"></div>
+        <div style="font-weight:900; margin-top:30px; font-size:2em;" id="cartTotal">₹0</div>
+        <button id="checkoutBtn" onclick="openPayment()" style="width:100%; margin-top:25px; display:none; background:var(--accent); color:white;">Order Now</button>
+    </div>
+
+<script>
+    const items = [
+        {name:"Classic Pizza", price:199, img:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400"},
+        {name:"Big Burger", price:129, img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400"},
+        {name:"Veg Biryani", price:160, img:"https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=400"},
+        {name:"Paneer Tikka", price:210, img:"https://images.unsplash.com/photo-1567184109411-b28f2703b142?w=400"},
+        {name:"Club Sandwich", price:110, img:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400"},
+        {name:"Spicy Fries", price:99, img:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400"},
+        {name:"Taco Trio", price:150, img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400"},
+        {name:"Nacho Bowl", price:140, img:"https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400"},
+        {name:"Cool Frappe", price:110, img:"https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400"},
+        {name:"Choco Shake", price:85, img:"https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400"},
+        {name:"Iced Tea", price:60, img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400"},
+        {name:"Berry Waffle", price:180, img:"https://images.unsplash.com/photo-1562327508-313675d34b45?w=400"},
+        {name:"Red Velvet", price:120, img:"https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400"},
+        {name:"Brownie Sundae", price:150, img:"https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400"}
+    ];
+
+    let cart = [];
+
+    // MODIFIED: Handle Login and Show Content
+    async function handleLogin() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const res = await fetch("http://localhost:5001/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                // HIDE Login Modal and SHOW Main Content
+                document.getElementById("loginModal").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+                displayMenu(); // Load the food items
+                alert("Welcome to the Cool Restaurant!");
+            } else {
+                alert("Login failed: " + (data.message || "Invalid credentials"));
+            }
+
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Server not reachable. Make sure server.js is running on port 5001!");
+        }
+    }
+
+    function displayMenu() {
+        document.getElementById("menu").innerHTML = items.map(item => `
+            <div class="menu-card" data-name="${item.name.toLowerCase()}">
+                <img src="${item.img}">
+                <h3>${item.name}</h3>
+                <div class="price-tag">₹${item.price}</div><br>
+                <button onclick="addToCart('${item.name}', ${item.price})">ADD +</button>
+            </div>`).join('');
+    }
+
+    function searchFood() {
+        const q = document.getElementById("search").value.toLowerCase();
+        document.querySelectorAll(".menu-card").forEach(c => c.style.display = c.dataset.name.includes(q) ? "block" : "none");
+    }
+
+    function addToCart(n, p) {
+        let f = cart.find(i => i.name === n);
+        if(f) f.qty++; else cart.push({name:n, price:p, qty:1});
+        updateCart();
+    }
+
+    function updateCart() {
+        let total = 0, count = 0;
+        document.getElementById("cartItems").innerHTML = cart.map((item, i) => {
+            total += item.price * item.qty;
+            count += item.qty;
+            return `<div style="padding:15px 0; border-bottom:2px solid black; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${item.name}</b><br>₹${item.price}</div>
+                <div>
+                    <button style="padding:5px 10px;" onclick="changeQty(${i}, -1)">-</button>
+                    <span style="margin:0 10px; font-weight:900;">${item.qty}</span>
+                    <button style="padding:5px 10px;" onclick="changeQty(${i}, 1)">+</button>
+                </div>
+            </div>`;
+        }).join('');
+        document.getElementById("cartTotal").innerText = "₹" + total;
+        document.getElementById("cartCount").innerText = count;
+        document.getElementById("checkoutBtn").style.display = cart.length > 0 ? "block" : "none";
+    }
+
+    function changeQty(i, d) {
+        cart[i].qty += d;
+        if(cart[i].qty <= 0) cart.splice(i, 1);
+        updateCart();
+    }
+
+    function toggleCart() { document.getElementById("cartPanel").classList.toggle("active"); }
+
+    function switchTab(t) {
+        document.getElementById("upiSection").style.display = t === 'upi' ? 'block' : 'none';
+        document.getElementById("netSection").style.display = t === 'net' ? 'block' : 'none';
+        document.getElementById("counterSection").style.display = t === 'counter' ? 'block' : 'none';
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', (t === 'upi' && idx === 0) || (t === 'net' && idx === 1) || (t === 'counter' && idx === 2));
+        });
+    }
+
+    function openPayment() {
+        let total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+        document.getElementById("payAmount").innerText = "Total: ₹" + total;
+        document.getElementById("qrCode").src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=cool@bank&am=${total}`;
+        document.getElementById("paymentModal").style.display = "flex";
+        document.getElementById("paymentContent").style.display = "block";
+        document.getElementById("successContent").style.display = "none";
+        toggleCart();
+    }
+
+    function closePayment() { document.getElementById("paymentModal").style.display = "none"; }
+
+    function processOrder(method) {
+        const total = cart.reduce((a, i) => a + (i.price * i.qty), 0);
+
+        fetch("http://localhost:5001/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                items: cart, // Matches your backend's 'items' variable
+                total: total,
+                method: method
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("paymentContent").style.display = "none";
+                document.getElementById("successContent").style.display = "block";
+                document.getElementById("displayOrderId").innerText = data.orderId;
+                cart = [];
+                updateCart();
+            }
+        })
+        .catch(err => alert("Order failed: " + err));
+    }
+
+    function finishOrder() {
+        closePayment();
+    }
+</script>
+</body>
+</html>
